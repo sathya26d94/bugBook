@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommentView" rowHeight="301" id="WWu-A1-9iG" customClass="CommentView" customModule="bugBook" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="301"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="WWu-A1-9iG" id="laW-vE-rw5">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="300"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hQR-gc-dfx">
+                        <rect key="frame" x="8" y="8" width="304" height="50"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="50" id="DPS-f0-pud"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MSu-EX-dYr">
+                        <rect key="frame" x="8" y="58" width="304" height="234"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="MSu-EX-dYr" firstAttribute="leading" secondItem="laW-vE-rw5" secondAttribute="leadingMargin" id="07p-9I-5lc"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="MSu-EX-dYr" secondAttribute="bottom" id="14g-mk-Fws"/>
+                    <constraint firstItem="hQR-gc-dfx" firstAttribute="top" secondItem="laW-vE-rw5" secondAttribute="topMargin" id="7zP-dS-xWV"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="hQR-gc-dfx" secondAttribute="trailing" id="E0e-Ha-iOW"/>
+                    <constraint firstItem="MSu-EX-dYr" firstAttribute="top" secondItem="hQR-gc-dfx" secondAttribute="bottom" id="Nuw-Yu-1MH"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="MSu-EX-dYr" secondAttribute="trailing" id="npj-lU-qKY"/>
+                    <constraint firstItem="hQR-gc-dfx" firstAttribute="leading" secondItem="laW-vE-rw5" secondAttribute="leadingMargin" id="qSS-sY-ZSK"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="bodyLabel" destination="MSu-EX-dYr" id="DPs-jp-Q9u"/>
+                <outlet property="titleLabel" destination="hQR-gc-dfx" id="wiV-0V-Rmu"/>
+            </connections>
+            <point key="canvasLocation" x="167" y="103.5"/>
+        </tableViewCell>
+    </objects>
+</document>
