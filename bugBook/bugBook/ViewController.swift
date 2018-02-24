@@ -11,8 +11,8 @@ import Foundation
 import CoreData
 
 enum TabelCellType {
-    case IssueType
-    case CommentType
+    case issueType
+    case commentType
 }
 
 class ViewController: UIViewController , UITableViewDataSource, UITableViewDelegate {
@@ -23,18 +23,18 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     @IBOutlet weak var tableView: UITableView!
     var tableArray: [AnyObject] = []
     var commentArray: [Comments] = []
-    var tableType: TabelCellType = TabelCellType.IssueType
+    var tableType: TabelCellType = TabelCellType.issueType
     override func viewDidLoad() {
         super.viewDidLoad()
         getIssuesFromServer()
-        backButton.hidden = true
+        backButton.isHidden = true
         totalCountLabel.setTitleTheme()
         syncButton.setButtonTheme()
-        tableView.registerNib(UINib(nibName: "IssueView", bundle: nil), forCellReuseIdentifier: "IssueView")
-        tableView.registerNib(UINib(nibName: "CommentView", bundle: nil), forCellReuseIdentifier: "CommentView")
+        tableView.register(UINib(nibName: "IssueView", bundle: nil), forCellReuseIdentifier: "IssueView")
+        tableView.register(UINib(nibName: "CommentView", bundle: nil), forCellReuseIdentifier: "CommentView")
     }
     
-    @IBAction func syncPressed(sender: AnyObject) {
+    @IBAction func syncPressed(_ sender: AnyObject) {
         getIssuesFromServer()
     }
     
@@ -42,29 +42,29 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
         super.didReceiveMemoryWarning()
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    @IBAction func backPressed(sender: AnyObject) {
-        backButton.hidden = true
-        syncButton.hidden = false
+    @IBAction func backPressed(_ sender: AnyObject) {
+        backButton.isHidden = true
+        syncButton.isHidden = false
         getIssuesFromServer()
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        totalCountLabel.attributedText("\(tableArray.count)\n", firstTextFont: UIFont(name: "Helvetica-BoldOblique" , size: 14 )!, firstTextColor: UIColor(colorLiteralRed: 130/255.0, green: 150/255.0, blue: 238/255.0, alpha: 1.0), secondText: "Total Counts", secondTextFont: UIFont(name: "HelveticaNeue" , size: 12 )!, secondTextColor: UIColor.whiteColor())
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        totalCountLabel.attributedText("\(tableArray.count)\n", firstTextFont: UIFont(name: "Helvetica-BoldOblique" , size: 14 )!, firstTextColor: UIColor(red: 130/255.0, green: 150/255.0, blue: 238/255.0, alpha: 1.0), secondText: "Total Counts", secondTextFont: UIFont(name: "HelveticaNeue" , size: 12 )!, secondTextColor: UIColor.white)
         return tableArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if tableType == TabelCellType.IssueType {
-            let cell:IssueView = self.tableView.dequeueReusableCellWithIdentifier("IssueView", forIndexPath: indexPath) as! IssueView
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if tableType == TabelCellType.issueType {
+            let cell:IssueView = self.tableView.dequeueReusableCell(withIdentifier: "IssueView", for: indexPath) as! IssueView
             cell.tag = indexPath.row
             let issue = tableArray[indexPath.row] as! Issues
             cell.setDefaults((issue.title)!, body: (issue.body)!)
             return cell
         } else {
-            let cell:CommentView = self.tableView.dequeueReusableCellWithIdentifier("CommentView", forIndexPath: indexPath) as! CommentView
+            let cell:CommentView = self.tableView.dequeueReusableCell(withIdentifier: "CommentView", for: indexPath) as! CommentView
             cell.tag = indexPath.row
             let comments = tableArray[indexPath.row] as! Comments
             cell.setDefaults((comments.login)!, body: (comments.body)!)
@@ -73,30 +73,32 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
         
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if tableType == TabelCellType.IssueType {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableType == TabelCellType.issueType {
             let issue = tableArray[indexPath.row] as! Issues
             getCommentsFromServer(issue.comments_url!)
         }
     }
     
     func getIssuesFromServer(){
-        let stringFromDate = NSDate().dateByAddingTimeInterval(-24 * 60 * 60).GIT_FORMAT
+        let stringFromDate = Date().addingTimeInterval(-24 * 60 * 60).GIT_FORMAT
         getJSON("https://api.github.com/repos/crashlytics/secureudid/issues?sincee=\(stringFromDate)") { (result: [AnyObject]) -> Void in
-            self.tableType = TabelCellType.IssueType
+            self.tableType = TabelCellType.issueType
             self.tableView.setTableDefaults(false, cellHeight: 100, headerHeight: nil)
             self.saveIssues(result)
         }
     }
     
-    func getCommentsFromServer(commentUrl: String){
+    func getCommentsFromServer(_ commentUrl: String){
         if (Reachability.isConnectedToNetwork()) {
-            backButton.hidden = false
-            syncButton.hidden = true
+            backButton.isHidden = false
+            syncButton.isHidden = true
             backButton.setButtonTheme()
             getJSON(commentUrl) { (result: [AnyObject]) -> Void in
-                self.view.bringSubviewToFront(self.backButton)
-                self.tableType = TabelCellType.CommentType
+                DispatchQueue.main.async {
+                 self.view.bringSubview(toFront: self.backButton)
+                }
+                self.tableType = TabelCellType.commentType
                 self.tableView.setTableDefaults(false, cellHeight: 300, headerHeight: nil)
                 self.saveCommentsArray(result)
             }
@@ -106,24 +108,26 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     }
 }
 
-extension NSDate {
+extension Date {
     struct Formatter {
-        static let GITFORMAT: NSDateFormatter = {
-            let formatter = NSDateFormatter()
-            formatter.calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierISO8601)
-            formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-            formatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        static let GITFORMAT: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.calendar = Calendar(identifier: Calendar.Identifier.iso8601)
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
             return formatter
         }()
     }
-    var GIT_FORMAT: String { return Formatter.GITFORMAT.stringFromDate(self) }
+    var GIT_FORMAT: String { return Formatter.GITFORMAT.string(from: self) }
 }
 
 extension UITableView {
-    func setTableDefaults(hasFooterView: Bool, cellHeight: CGFloat?, headerHeight: CGFloat?, cellSeparatorColor: UIColor = UIColor(colorLiteralRed:215/255, green:228/255, blue:236/255, alpha:1.0)) {
+    func setTableDefaults(_ hasFooterView: Bool, cellHeight: CGFloat?, headerHeight: CGFloat?, cellSeparatorColor: UIColor = UIColor(red:215/255, green:228/255, blue:236/255, alpha:1.0)) {
         if let cellHeight = cellHeight {
-            rowHeight = cellHeight
+            DispatchQueue.main.async {
+                self.rowHeight = cellHeight
+            }
         }
         if let headerHeight = headerHeight {
             sectionHeaderHeight = headerHeight
@@ -134,8 +138,8 @@ extension UITableView {
 
 extension UIButton {
     func setButtonTheme() {
-        backgroundColor = UIColor(colorLiteralRed: 35/255, green: 77/255, blue: 109/255, alpha: 1.0)
-        titleLabel?.textColor = UIColor.whiteColor()
-        titleLabel?.textAlignment = .Center
+        backgroundColor = UIColor(red: 35/255, green: 77/255, blue: 109/255, alpha: 1.0)
+        titleLabel?.textColor = UIColor.white
+        titleLabel?.textAlignment = .center
     }
 }

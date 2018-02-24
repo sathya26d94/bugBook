@@ -20,7 +20,7 @@ class IssueView: UITableViewCell {
     }
 
     
-    func setDefaults(title: String, body: String ) {
+    func setDefaults(_ title: String, body: String ) {
         titleLabel.text = title
         bodyLabel.text = body
     }

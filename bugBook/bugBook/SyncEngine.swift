@@ -11,22 +11,25 @@ import CoreData
 import UIKit
 
 extension ViewController {
-    func getJSON(urlString: String, success: ([AnyObject]) -> Void) {
+    func getJSON(_ urlString: String, success: @escaping ([AnyObject]) -> Void) {
         if (Reachability.isConnectedToNetwork()){
-            JHProgressHUD.sharedHUD.showInView(view)
-            let requestURL: NSURL = NSURL(string: urlString  )!
-            let urlRequest: NSMutableURLRequest = NSMutableURLRequest(URL: requestURL)
-            let session = NSURLSession.sharedSession()
-            let task = session.dataTaskWithRequest(urlRequest) {
-                (data, response, error) -> Void in
-                let httpResponse = response as! NSHTTPURLResponse
-                let statusCode = httpResponse.statusCode
-                if (statusCode == 200) {
-                    do{
-                        let json = try NSJSONSerialization.JSONObjectWithData(data!, options:.AllowFragments)
-                        success(json as! [AnyObject])
-                    }catch {
-                        print("Error with Json: \(error)")
+            self.showActivityIndicator()
+            let session = URLSession.shared
+            guard let requestUrl = URL(string:urlString) else { return }
+            let request = URLRequest(url:requestUrl)
+            let task = session.dataTask(with: request) {
+                (data, response, error) in
+                self.hideActivityIndicator()
+                if error == nil {
+                    let httpResponse = response as! HTTPURLResponse
+                    let statusCode = httpResponse.statusCode
+                    if (statusCode == 200) {
+                        do{
+                            let json = try JSONSerialization.jsonObject(with: data!, options:.allowFragments)
+                            success(json as! [AnyObject])
+                        }catch {
+                            print("Error with Json: \(error)")
+                        }
                     }
                 }
             }
@@ -35,34 +38,36 @@ extension ViewController {
             noInternetAlert()
         }
     }
+
     
     func noInternetAlert() {
-        let alert = UIAlertController(title: "Alert", message: "Network Not Available", preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "Okay", style: .Default, handler: { action in
+        let alert = UIAlertController(title: "Alert", message: "Network Not Available", preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { action in
             
         }))
-        dispatch_async(dispatch_get_main_queue(), {
-            self.presentViewController(alert, animated: true, completion: nil)
+        DispatchQueue.main.async(execute: {
+            self.present(alert, animated: true, completion: nil)
         })
     }
-    func saveIssues(dataArray : [AnyObject]) {
+    func saveIssues(_ dataArray : [AnyObject]) {
         deleteAllData("Issues") { (success) -> Void in
             for data in dataArray {
-                let issue = NSEntityDescription.insertNewObjectForEntityForName("Issues",inManagedObjectContext:MOC.sharedInstance.managedObjectContext) as? Issues
+                let issue = NSEntityDescription.insertNewObject(forEntityName: "Issues",into:MOC.sharedInstance.managedObjectContext) as? Issues
                 issue?.body = data["body"] as? String
                 issue?.comments_url = data["comments_url"] as? String
                 issue?.title = data["title"] as? String
                 issue?.updated_at = data["updated_at"] as? String
-                MOC.sharedInstance.saveContext()
+
             }
+            MOC.sharedInstance.saveContext()
             self.fetch("Issues",sortKeyPath: "updated_at")
         }
     }
     
-    func saveCommentsArray(dataArray : [AnyObject]) {
+    func saveCommentsArray(_ dataArray : [AnyObject]) {
         deleteAllData("Comments") { (success) -> Void in
             for data in dataArray {
-                let comments = NSEntityDescription.insertNewObjectForEntityForName("Comments",inManagedObjectContext:MOC.sharedInstance.managedObjectContext) as? Comments
+                let comments = NSEntityDescription.insertNewObject(forEntityName: "Comments",into:MOC.sharedInstance.managedObjectContext) as? Comments
                 comments?.body = data["body"] as? String
                 let userInfo = data["user"] as? [String: AnyObject]
                 comments?.login = userInfo!["login"] as? String
@@ -72,33 +77,47 @@ extension ViewController {
         }
     }
     
-    func deleteAllData(entity: String, success: (AnyObject) -> Void) {
-        let fetchRequest = NSFetchRequest(entityName: entity)
-        fetchRequest.returnsObjectsAsFaults = false
+    func deleteAllData(_ entity: String, success: (AnyObject) -> Void) {
+        let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
         do {
-            let results = try MOC.sharedInstance.managedObjectContext.executeFetchRequest(fetchRequest)
-            for managedObject in results {
-                let managedObjectData:NSManagedObject = managedObject as! NSManagedObject
-                MOC.sharedInstance.managedObjectContext.deleteObject(managedObjectData)
-            }
-            MOC.sharedInstance.saveContext()
-            success("Success")
-        } catch let error as NSError {
-            print("Detele all data in \(entity) error : \(error) \(error.userInfo)")
+            try MOC.sharedInstance.managedObjectContext.execute(deleteRequest)
+            try MOC.sharedInstance.managedObjectContext.save()
+            success("Success" as AnyObject)
+        } catch {
+            print ("There was an error")
         }
     }
     
-    func fetch(entityName: String, sortKeyPath: String) {
+    func fetch(_ entityName: String, sortKeyPath: String) {
         MOC.sharedInstance.fetchedResultsController(entityName,keyPath: sortKeyPath)
         MOC.sharedInstance.executeFetch { (Success) -> Void in
             if let tableArray = MOC.sharedInstance.fetchedResultsController.fetchedObjects {
                 self.tableArray = tableArray
                 self.tableView.reloadData()
-                JHProgressHUD.sharedHUD.hide()
             } else {
                 
             }
         }
+    }
+
+    func showActivityIndicator()  {
+        let myActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
+        myActivityIndicator.center = view.center
+        myActivityIndicator.hidesWhenStopped = true
+        myActivityIndicator.startAnimating()
+        myActivityIndicator.tag = 97942609
+        myActivityIndicator.isHidden = false
+        view.addSubview(myActivityIndicator)
+    }
+
+    func hideActivityIndicator()  {
+        DispatchQueue.main.async(execute: {
+            let myActivityIndicator = self.view.viewWithTag(97942609) as! UIActivityIndicatorView
+            myActivityIndicator.isHidden = true
+            myActivityIndicator.stopAnimating()
+            myActivityIndicator.removeFromSuperview()
+        })
     }
 
 }
