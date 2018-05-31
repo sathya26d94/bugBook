@@ -50,6 +50,10 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
         syncButton.isHidden = false
         getIssuesFromServer()
     }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         totalCountLabel.attributedText("\(tableArray.count)\n", firstTextFont: UIFont(name: "Helvetica-BoldOblique" , size: 14 )!, firstTextColor: UIColor(red: 130/255.0, green: 150/255.0, blue: 238/255.0, alpha: 1.0), secondText: "Total Counts", secondTextFont: UIFont(name: "HelveticaNeue" , size: 12 )!, secondTextColor: UIColor.white)
@@ -126,7 +130,8 @@ extension UITableView {
     func setTableDefaults(_ hasFooterView: Bool, cellHeight: CGFloat?, headerHeight: CGFloat?, cellSeparatorColor: UIColor = UIColor(red:215/255, green:228/255, blue:236/255, alpha:1.0)) {
         if let cellHeight = cellHeight {
             DispatchQueue.main.async {
-                self.rowHeight = cellHeight
+                self.rowHeight = UITableViewAutomaticDimension
+                self.estimatedRowHeight = 124
             }
         }
         if let headerHeight = headerHeight {

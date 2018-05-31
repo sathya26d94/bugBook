@@ -78,8 +78,8 @@ extension UILabel {
     }
     
     func attributedText(_ firstText: String, firstTextFont: UIFont, firstTextColor: UIColor, secondText: String, secondTextFont: UIFont, secondTextColor: UIColor) {
-        let firstTextRange = NSMakeRange(0, firstText.characters.count)
-        let secondTextRange = NSMakeRange(firstText.characters.count, secondText.characters.count)
+        let firstTextRange = NSMakeRange(0, firstText.count)
+        let secondTextRange = NSMakeRange(firstText.count, secondText.count)
         let attributedString = NSMutableAttributedString(string: firstText + secondText)
         attributedString.addAttribute(NSAttributedStringKey.foregroundColor, value: firstTextColor, range: firstTextRange)
         attributedString.addAttribute(NSAttributedStringKey.font, value: firstTextFont, range: firstTextRange)
